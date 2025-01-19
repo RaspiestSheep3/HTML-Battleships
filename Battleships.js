@@ -109,8 +109,15 @@ document.querySelector('.playerBoard').addEventListener('click', function(event)
                 movementVector = [positions[1][0] - positions[0][0] , positions[1][1] - positions[0][1]];
 
                 console.log(`MOVEMENT VECTOR ${JSON.stringify(movementVector)} ${JSON.stringify(positions)}`);
-                if(!((placementGrid[targetLocation[0] + movementVector[0]][targetLocation[1] + movementVector[1]] === targetShipType) || (placementGrid[targetLocation[0] - movementVector[0]][targetLocation[1] - movementVector[1]] === targetShipType))){
-                targetValid = false;
+                let vectorAllowed = true;
+                let negativeVectorAllowed = true;
+                
+                vectorAllowed =(targetLocation[1] + movementVector[1] < 10) && (targetLocation[1] + movementVector[1] > -1) && (targetLocation[0] + movementVector[0] > -1) && (targetLocation[0] + movementVector[0] < 10) && (placementGrid[targetLocation[0] + movementVector[0]][targetLocation[1] + movementVector[1]] === targetShipType);
+                negativeVectorAllowed =(targetLocation[1] - movementVector[1] < 10) && (targetLocation[1] - movementVector[1] > -1) && (targetLocation[0] - movementVector[0] > -1) && (targetLocation[0] - movementVector[0] < 10) && (placementGrid[targetLocation[0] - movementVector[0]][targetLocation[1] - movementVector[1]] === targetShipType);
+
+
+                if(!(vectorAllowed || negativeVectorAllowed)){
+                    targetValid = false;
                 }
             }
 
