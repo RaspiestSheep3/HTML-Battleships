@@ -10,6 +10,7 @@ var playerTurn = 0;
 //0 = Empty, 1 = White Normal, 2 = Black Normal, 3 = White King, 4 = Black King
 var playerGrids = [[], []];
 var shotGrids = [[], []];
+var blankGrid = [];
 
 function GenerateBlankGrids(){
     let grid = [];
@@ -21,6 +22,7 @@ function GenerateBlankGrids(){
     playerGrids[1] = structuredClone(grid);
     shotGrids[0] = structuredClone(grid);
     shotGrids[1] = structuredClone(grid);
+    blankGrid = structuredClone(grid);
 
 }
 
@@ -69,17 +71,25 @@ var placedSquaresShip = 0;
 var positions = [];
 var movementVector = [0,0];
 
+//Screen Switching
+var switchStarted = false;
+var canSwitch = false;
+var placementSwitchOccured = false;
+
+const css = document.documentElement.style;
+
 document.querySelector('.playerBoard').addEventListener('click', function(event) {
     // Check if the clicked element is a cell
 
     if (event.target.classList.contains('cell')) {
         
         //PLACEMENT
-        if(playerPlacement){
+        if(playerPlacement && !(canSwitch)){
             let placementGrid = playerGrids[playerTurn];
             if(placedSquaresShip === 0){
                 //Change type
                 targetShipType += 1;
+                //console.log(targetShipType);
                 placedSquaresShip = shipDict.get(targetShipType)[1];
                 positions = [];
             }
@@ -125,17 +135,53 @@ document.querySelector('.playerBoard').addEventListener('click', function(event)
                 placementGrid[targetLocation[0]][targetLocation[1]] = targetShipType;
                 placedSquaresShip -= 1; 
                 
-                console.log(`TESTING ${targetShipType}`);
-                console.log(placementGrid);
+                //console.log(`TESTING ${targetShipType}`);
+                //console.log(placementGrid);
                 DrawGrid(placementGrid, "PlayerRow", "PlayerCell");
                 positions.push(targetLocation);
             }
 
-            if(placedSquaresShip === 0 && targetShipType === 5) playerPlacement = false;
-            console.log(playerPlacement);
+            if(placedSquaresShip === 0 && targetShipType === 5){
+                if(playerTurn == 1) playerPlacement = false ;
+                else{
+                    targetShipType = 0;
+                    positions = [];
+                }
+                canSwitch = true;
+            } 
+            console.log(`TURN ${playerTurn} SHIPTYPE ${targetShipType} CANSWITCH ${canSwitch}`);
         }   
+
     }
 }); 
+
+document.querySelector('.switchButton').addEventListener('click', function(event) {
+    if(canSwitch){
+        if((!switchStarted)){
+            console.log(` ORG ${css.getPropertyValue("--switchButtonColour")}`);
+            switchStarted = true;
+            console.log("SWITCH STARTED");
+            css.setProperty("--switchButtonColour", css.getPropertyValue("--switchButtonColourActive"));
+            DrawGrid(blankGrid, "PlayerRow", "PlayerCell");
+            DrawGrid(blankGrid, "OtherRow", "OtherCell");
+
+            console.log(` NEW ${css.getPropertyValue("--switchButtonColour")}`);
+        }
+        else{
+            switchStarted = false;
+            canSwitch = false;
+            playerTurn = (playerTurn + 1) % 2;
+
+            console.log("SWITCH COMPLETE");
+
+            if(playerPlacement) placementSwitchOccured = true;
+
+            css.setProperty("--switchButtonColour", css.getPropertyValue("--backgroundColour"));
+            DrawGrid(playerGrids[playerTurn], "PlayerRow", "PlayerCell");
+            DrawGrid(shotGrids[playerTurn], "OtherRow", "OtherCell");
+        }
+    }
+});
 
 
 //MAIN PROGRAM
