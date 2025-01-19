@@ -131,7 +131,8 @@ document.querySelector('.playerBoard').addEventListener('click', function(event)
                 positions.push(targetLocation);
             }
 
-            
+            if(placedSquaresShip === 0 && targetShipType === 5) playerPlacement = false;
+            console.log(playerPlacement);
         }   
     }
 }); 
