@@ -2,6 +2,9 @@
 
 //Theme control
 
+var switchStarted = false;
+var canSwitch = false;
+var placementSwitchOccured = false;
 
 //TRACKING GRID AND PLAYERS
 
@@ -27,6 +30,11 @@ function GenerateBlankGrids(){
 }
 
 function DrawGrid(grid, rowPrefix, cellPrefix){
+    //Turn display
+    let turnDisplay = document.getElementById("turnDisplay");
+    if(switchStarted) turnDisplay.innerHTML = `<h2 class="displayText">Switching</h2>`;
+    else turnDisplay.innerHTML = `<h2 class="displayText">It is Player ${playerTurn + 1}'s Turn</h2>`;
+    
     let imageFolder = "Images";
     let filePrefix = "Battleships_";
 
@@ -72,11 +80,8 @@ var positions = [];
 var movementVector = [0,0];
 
 //Screen Switching
-var switchStarted = false;
-var canSwitch = false;
-var placementSwitchOccured = false;
-
 const css = document.documentElement.style;
+const cssRead = getComputedStyle(document.documentElement);
 
 document.querySelector('.playerBoard').addEventListener('click', function(event) {
     // Check if the clicked element is a cell
@@ -158,14 +163,17 @@ document.querySelector('.playerBoard').addEventListener('click', function(event)
 document.querySelector('.switchButton').addEventListener('click', function(event) {
     if(canSwitch){
         if((!switchStarted)){
-            console.log(` ORG ${css.getPropertyValue("--switchButtonColour")}`);
+            console.log(` ORG ${cssRead.getPropertyValue("--switchButtonColour")}`);
             switchStarted = true;
             console.log("SWITCH STARTED");
-            css.setProperty("--switchButtonColour", css.getPropertyValue("--switchButtonColourActive"));
+            //css.setProperty("--switchButtonColour", cssRead.getPropertyValue("--switchButtonColourActive"));
+            
+            //PROBLEM LINE
+            css.setProperty("--switchButtonColour", cssRead.getPropertyValue("--switchButtonColourActive"));
             DrawGrid(blankGrid, "PlayerRow", "PlayerCell");
             DrawGrid(blankGrid, "OtherRow", "OtherCell");
 
-            console.log(` NEW ${css.getPropertyValue("--switchButtonColour")}`);
+            console.log(` NEW ${cssRead.getPropertyValue("--switchButtonColour")}`);
         }
         else{
             switchStarted = false;

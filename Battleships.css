@@ -3,7 +3,7 @@
     --fontColour : #b5b2a6;
     --borderColour : #b5b2a6;
     --switchButtonColour : #201f23;
-    --switchButtonColourActive : #580606;
+    --switchButtonColourActive : #0d2b45;
     --cellSize : 32px;
 }
 
@@ -84,7 +84,7 @@ body {
     padding: 0% 20px;
     transition: 0.2s;
     background-color: var(--switchButtonColour);
-    color: var(--switchButtonColour);
+    color: var(--fontColour);
 }
 
 .switchButton:hover {
@@ -93,4 +93,11 @@ body {
     cursor: pointer;
     text-decoration: underline;
     color: var(--fontColour);
+}
+
+.turnDisplay {
+    font-size: 20px;
+    border: 3px solid var(--borderColour);
+    border-radius: 30px;
+    padding: 0% 20px;
 }
