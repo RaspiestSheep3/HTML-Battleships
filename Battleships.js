@@ -22,6 +22,7 @@ var targetShipType = 0;     // Type of ship being placed
 var placedSquaresShip = 0;  // Remaining squares to place for the current ship
 var positions = [];         // Positions of placed ship parts
 var movementVector = [0, 0]; // Direction of placement
+var shipsLeft = [0,0];
 
 // Screen Switching Variables
 var switchStarted = false;       // Whether switching is in progress
@@ -42,8 +43,10 @@ function GenerateBlankGrids() {
     blankGrid = structuredClone(grid);
 }
 
-function DrawGrid(grid, rowPrefix, cellPrefix) {
+function DrawGrid(grid, rowPrefix, cellPrefix, shouldCalculateShips = false) {
     // Turn display
+    if(shouldCalculateShips) shipsLeft[playerTurn] = 0;
+
     let turnDisplay = document.getElementById("turnDisplay");
     if (switchStarted) turnDisplay.innerHTML = `<h2 class="displayText">Switching</h2>`;
     else turnDisplay.innerHTML = `<h2 class="displayText">It is Player ${playerTurn + 1}'s Turn</h2>`;
@@ -59,6 +62,8 @@ function DrawGrid(grid, rowPrefix, cellPrefix) {
         [4, `${imageFolder}/${filePrefix}4.png`],
         [5, `${imageFolder}/${filePrefix}5.png`],
         [6, `${imageFolder}/${filePrefix}6.png`],
+        [7, `${imageFolder}/${filePrefix}7.png`],
+        [8, `${imageFolder}/${filePrefix}8.png`],
     ]);
 
     for (let i = 0; i < 10; i++) {
@@ -66,11 +71,17 @@ function DrawGrid(grid, rowPrefix, cellPrefix) {
         let line = "";
 
         for (let j = 0; j < 10; j++) {
+            if((grid[i][j] !== 0) && shouldCalculateShips) shipsLeft[playerTurn] = shipsLeft[playerTurn] + 1;
+            //console.log(shipsLeft);
             line += `<img class= "cell" id = "${cellPrefix} ${i} ${j}" src="${imageDictionary.get(grid[i][j])}">`;
         }
 
         row.innerHTML = line;
     }
+
+    let scoreDisplay = document.getElementById("scoreDisplay");
+    scoreDisplay.innerHTML = `<h2 class="displayText">Player 1 : ${shipsLeft[0]}</h2>`;
+    scoreDisplay.innerHTML += `<h2 class="displayText">Player 2 : ${shipsLeft[1]}</h2>`;
 }
 
 document.querySelector('.playerBoard').addEventListener('click', function (event) {
@@ -125,7 +136,7 @@ document.querySelector('.playerBoard').addEventListener('click', function (event
                 placementGrid[targetLocation[0]][targetLocation[1]] = targetShipType;
                 placedSquaresShip -= 1;
 
-                DrawGrid(placementGrid, "PlayerRow", "PlayerCell");
+                DrawGrid(placementGrid, "PlayerRow", "PlayerCell", true);
                 positions.push(targetLocation);
             }
 
@@ -164,15 +175,24 @@ document.querySelector('.switchButton').addEventListener('click', function (even
 
 document.querySelector('.otherBoard').addEventListener("click", function (event) {
 
-    if(!playerPlacement && event.target.classList.contains('cell')){
+    if(!playerPlacement && event.target.classList.contains('cell') && !canSwitch){
         let cellId = event.target.id;
         let targetLocation = [Number(cellId[cellId.length - 3]), Number(cellId[cellId.length - 1])];
         let shotBoard = shotGrids[playerTurn];
         let otherBoard = playerGrids[(playerTurn + 1) % 2];
 
-        shotBoard[targetLocation[0]][targetLocation[1]] = otherBoard[targetLocation[0]][targetLocation[1]];
-        window.onload = DrawGrid(shotGrids[0], "OtherRow", "OtherCell");
-        
+        if(otherBoard[targetLocation[0]][targetLocation[1]] !== 0){
+            //Hit
+            shotBoard[targetLocation[0]][targetLocation[1]] = 7;
+            shipsLeft[(playerTurn + 1) % 2] = shipsLeft[(playerTurn + 1) % 2] - 1;
+        }
+        else {
+            //Miss
+            shotBoard[targetLocation[0]][targetLocation[1]] = 8;
+        }
+
+        DrawGrid(shotGrids[0], "OtherRow", "OtherCell");
+        canSwitch = true;
 
     }
 
