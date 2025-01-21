@@ -162,6 +162,22 @@ document.querySelector('.switchButton').addEventListener('click', function (even
     }
 });
 
+document.querySelector('.otherBoard').addEventListener("click", function (event) {
+
+    if(!playerPlacement && event.target.classList.contains('cell')){
+        let cellId = event.target.id;
+        let targetLocation = [Number(cellId[cellId.length - 3]), Number(cellId[cellId.length - 1])];
+        let shotBoard = shotGrids[playerTurn];
+        let otherBoard = playerGrids[(playerTurn + 1) % 2];
+
+        shotBoard[targetLocation[0]][targetLocation[1]] = otherBoard[targetLocation[0]][targetLocation[1]];
+        window.onload = DrawGrid(shotGrids[0], "OtherRow", "OtherCell");
+        
+
+    }
+
+});
+
 // Main Program
 window.onload = GenerateBlankGrids();
 window.onload = DrawGrid(playerGrids[0], "PlayerRow", "PlayerCell");
