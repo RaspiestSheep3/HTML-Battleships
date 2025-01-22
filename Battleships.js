@@ -55,15 +55,20 @@ function DrawGrid(grid, rowPrefix, cellPrefix, shouldCalculateShips = false) {
     let filePrefix = "Battleships_";
 
     let imageDictionary = new Map([
-        [0, `${imageFolder}/${filePrefix}0.png`],
-        [1, `${imageFolder}/${filePrefix}1.png`],
-        [2, `${imageFolder}/${filePrefix}2.png`],
-        [3, `${imageFolder}/${filePrefix}3.png`],
-        [4, `${imageFolder}/${filePrefix}4.png`],
-        [5, `${imageFolder}/${filePrefix}5.png`],
-        [6, `${imageFolder}/${filePrefix}6.png`],
-        [7, `${imageFolder}/${filePrefix}7.png`],
-        [8, `${imageFolder}/${filePrefix}8.png`],
+        [0, `${imageFolder}/${filePrefix}00.png`],
+        [1, `${imageFolder}/${filePrefix}01.png`],
+        [2, `${imageFolder}/${filePrefix}02.png`],
+        [3, `${imageFolder}/${filePrefix}03.png`],
+        [4, `${imageFolder}/${filePrefix}04.png`],
+        [5, `${imageFolder}/${filePrefix}05.png`],
+        [6, `${imageFolder}/${filePrefix}06.png`],
+        [7, `${imageFolder}/${filePrefix}07.png`],
+        [8, `${imageFolder}/${filePrefix}08.png`],
+        [9, `${imageFolder}/${filePrefix}09.png`],
+        [10, `${imageFolder}/${filePrefix}10.png`],
+        [11, `${imageFolder}/${filePrefix}11.png`],
+        [12, `${imageFolder}/${filePrefix}12.png`],
+        [13, `${imageFolder}/${filePrefix}13.png`],
     ]);
 
     for (let i = 0; i < 10; i++) {
@@ -172,6 +177,10 @@ document.querySelector('.switchButton').addEventListener('click', function (even
         }
     }
 });
+
+function CheckForSunkShip(shotBoard, playerBoard, numToCheck) {
+    
+}
 
 document.querySelector('.otherBoard').addEventListener("click", function (event) {
 
