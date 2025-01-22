@@ -10,6 +10,14 @@ const shipDict = new Map([
     [5, ["Carrier", 5]],
 ]);
 
+const sunkShipNumDict = new Map([
+    [1, 9],
+    [2, 10],
+    [3, 11],
+    [4, 12],
+    [5, 13]
+]);
+
 // Gameplay Variables
 var playerTurn = 0; // 0 = Player 1, 1 = Player 2
 var playerGrids = [[], []]; // Each player's ship grid
@@ -76,7 +84,7 @@ function DrawGrid(grid, rowPrefix, cellPrefix, shouldCalculateShips = false) {
         let line = "";
 
         for (let j = 0; j < 10; j++) {
-            if((grid[i][j] !== 0) && shouldCalculateShips) shipsLeft[playerTurn] = shipsLeft[playerTurn] + 1;
+            if(shouldCalculateShips && (grid[i][j] !== 0)) shipsLeft[playerTurn] = shipsLeft[playerTurn] + 1;
             //console.log(shipsLeft);
             line += `<img class= "cell" id = "${cellPrefix} ${i} ${j}" src="${imageDictionary.get(grid[i][j])}">`;
         }
@@ -178,8 +186,25 @@ document.querySelector('.switchButton').addEventListener('click', function (even
     }
 });
 
-function CheckForSunkShip(shotBoard, playerBoard, numToCheck) {
-    
+function CheckForSunkShip(pPlayerTurn, numToCheck) {
+    let shotBoard = shotGrids[pPlayerTurn];
+    let playerBoard = playerGrids[(pPlayerTurn + 1) % 2]; 
+
+    let positions = [];
+    for(let i = 0; i < playerBoard.length; i++){
+        for(let j = 0; j < playerBoard[i].length;j++){
+            if((playerBoard[i][j] === numToCheck) && (shotBoard[i][j] !== 0))
+                positions.push([i,j])
+        }
+    }
+
+    if(positions.length === shipDict.get(numToCheck)[1]){
+        for(let position of positions){
+            console.log(`POSITON ${position} ${playerBoard[position[0]][position[1]]}`);
+            shotGrids[playerTurn] = sunkShipNumDict.get(playerBoard[position[0]][position[1]]);
+        }
+    }
+
 }
 
 document.querySelector('.otherBoard').addEventListener("click", function (event) {
@@ -194,6 +219,7 @@ document.querySelector('.otherBoard').addEventListener("click", function (event)
             //Hit
             shotBoard[targetLocation[0]][targetLocation[1]] = 7;
             shipsLeft[(playerTurn + 1) % 2] = shipsLeft[(playerTurn + 1) % 2] - 1;
+            CheckForSunkShip(playerTurn, otherBoard[targetLocation[0]][targetLocation[1]]);
         }
         else {
             //Miss
