@@ -23,6 +23,7 @@ var playerTurn = 0; // 0 = Player 1, 1 = Player 2
 var playerGrids = [[], []]; // Each player's ship grid
 var shotGrids = [[], []];   // Each player's shot grid
 var blankGrid = [];         // Empty grid for display
+var gameOngoing = true;     // Used to work out if game is still ongoing
 
 // Ship Placement Variables
 var playerPlacement = true; // Whether ships are still being placed
@@ -56,9 +57,16 @@ function DrawGrid(grid, rowPrefix, cellPrefix, shouldCalculateShips = false) {
     if(shouldCalculateShips) shipsLeft[playerTurn] = 0;
 
     let turnDisplay = document.getElementById("turnDisplay");
-    if (switchStarted) turnDisplay.innerHTML = `<h2 class="displayText">Switching</h2>`;
-    else turnDisplay.innerHTML = `<h2 class="displayText">It is Player ${playerTurn + 1}'s Turn</h2>`;
-
+    if(gameOngoing){
+        if (switchStarted) turnDisplay.innerHTML = `<h2 class="displayText">Switching</h2>`;
+        else turnDisplay.innerHTML = `<h2 class="displayText">It is Player ${playerTurn + 1}'s Turn</h2>`;
+    }
+    else {
+        let winner = -1;
+        if(shipsLeft[0] === 0) winner = 1;
+        else winner = 0;
+        turnDisplay.innerHTML = `<h2 class="displayText">Player ${winner + 1} has won!</h2>`;
+    }
     let imageFolder = "Images";
     let filePrefix = "Battleships_";
 
@@ -86,6 +94,7 @@ function DrawGrid(grid, rowPrefix, cellPrefix, shouldCalculateShips = false) {
         for (let j = 0; j < 10; j++) {
             if(shouldCalculateShips && (grid[i][j] !== 0)) shipsLeft[playerTurn] = shipsLeft[playerTurn] + 1;
             //console.log(shipsLeft);
+            //console.log(`IMAGE DICTIONARY ${imageDictionary.get(grid[i][j])}`);
             line += `<img class= "cell" id = "${cellPrefix} ${i} ${j}" src="${imageDictionary.get(grid[i][j])}">`;
         }
 
@@ -166,7 +175,7 @@ document.querySelector('.playerBoard').addEventListener('click', function (event
 });
 
 document.querySelector('.switchButton').addEventListener('click', function (event) {
-    if (canSwitch) {
+    if (canSwitch && gameOngoing) {
         if (!switchStarted) {
             switchStarted = true;
             css.setProperty("--switchButtonColour", cssRead.getPropertyValue("--switchButtonColourActive"));
@@ -192,16 +201,19 @@ function CheckForSunkShip(pPlayerTurn, numToCheck) {
 
     let positions = [];
     for(let i = 0; i < playerBoard.length; i++){
+        //Generating array of all positions where NumToCheck is 
         for(let j = 0; j < playerBoard[i].length;j++){
             if((playerBoard[i][j] === numToCheck) && (shotBoard[i][j] !== 0))
                 positions.push([i,j])
         }
     }
 
+    console.log(`POSITIONS ${positions.length} ${shipDict.get(numToCheck)[1]}`)
     if(positions.length === shipDict.get(numToCheck)[1]){
+        //If we have all the positions marked, this activates
         for(let position of positions){
             console.log(`POSITON ${position} ${playerBoard[position[0]][position[1]]}`);
-            shotGrids[playerTurn] = sunkShipNumDict.get(playerBoard[position[0]][position[1]]);
+            shotGrids[playerTurn][position[0]][position[1]] = sunkShipNumDict.get(playerBoard[position[0]][position[1]]);
         }
     }
 
@@ -215,10 +227,11 @@ document.querySelector('.otherBoard').addEventListener("click", function (event)
         let shotBoard = shotGrids[playerTurn];
         let otherBoard = playerGrids[(playerTurn + 1) % 2];
 
-        if(otherBoard[targetLocation[0]][targetLocation[1]] !== 0){
+        if((otherBoard[targetLocation[0]][targetLocation[1]] !== 0)){
             //Hit
             shotBoard[targetLocation[0]][targetLocation[1]] = 7;
             shipsLeft[(playerTurn + 1) % 2] = shipsLeft[(playerTurn + 1) % 2] - 1;
+            if((shipsLeft[0] === 0) || (shipsLeft[1] === 0)) gameOngoing = false;
             CheckForSunkShip(playerTurn, otherBoard[targetLocation[0]][targetLocation[1]]);
         }
         else {
@@ -226,7 +239,8 @@ document.querySelector('.otherBoard').addEventListener("click", function (event)
             shotBoard[targetLocation[0]][targetLocation[1]] = 8;
         }
 
-        DrawGrid(shotGrids[0], "OtherRow", "OtherCell");
+        console.log(`SHOT BOARD ${JSON.stringify(shotBoard)} ${targetLocation} ${otherBoard[targetLocation[0]][targetLocation[1]]}`);
+        DrawGrid(shotGrids[playerTurn], "OtherRow", "OtherCell");
         canSwitch = true;
 
     }
